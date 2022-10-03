@@ -1,0 +1,12 @@
+
+@body = { "Id_flipper" : 1, "description":"Flipper thématisé sur la célèbre série, The Twilight Zone est considéré", "pointfort1" : "zizi" , "pointfort2" : "zizi"}
+
+GET http://joe.api/flipper/1
+###
+
+PUT http://joe.api/flipper/1
+
+{{body}}
+###
+
+
