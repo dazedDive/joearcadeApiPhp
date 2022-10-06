@@ -45,6 +45,13 @@ class DatabaseService {
         return $rows;
     }
 
+    public function selectWhere($where = "1", $params = []){
+        $sql = "SELECT * FROM $this->table WHERE $where;";
+        $resp = $this->query($sql, $params);
+        $rows = $resp->statement->fetchAll(PDO::FETCH_CLASS);
+        return $rows;
+    }
+    
     public function selectOne($id){
         $sql = "SELECT * FROM $this->table WHERE is_deleted = ? AND Id_$this->table= ?";
         $resp = $this->query($sql, [0,$id]);
@@ -53,44 +60,34 @@ class DatabaseService {
         return $row;
     }
 
-    public function updateOne ($body){
-        $idKey=array_key_first($body);
-        $id=array_shift($body);
-        $lastkey=array_key_last($body);
-        $set="";
-        foreach($body as $key=>$value){
-            $key.="=";
-            $value="'".$value."'";
-            $set.= $key;
-            if($key!=$lastkey."="){
-                $set.=$value.",";
-            }
-            else{
-                $set.=$value;
-                }
+    function updateOne($body){ //Version condensée
+        $id = $body["Id_$this->table"];
+        $where = "Id_$this->table = ?";
+        if(isset($body["Id_$this->table"])){
+            unset($body["Id_$this->table"]);
         }
-        $sql = "UPDATE $this->table SET $set WHERE $idKey= ? ";
-        $resp = $this->query($sql,[$id]);
-        $row = $resp->statement->fetchAll(PDO::FETCH_CLASS);
-        $row = $this->selectOne($id);
-        return  $row;
-      }
+        $set = implode(",", array_map(function ($item){ return $item."=?"; }, array_keys($body)));
+        $valuesToBind = array_values($body);
+        array_push($valuesToBind,$id);
+        $sql = "UPDATE $this->table SET $set WHERE $where";
+        $resp = $this->query($sql, $valuesToBind);
+        if($resp->result && $resp->statment->rowCount() <= 1){
+            $row = $this->selectOne($id);
+            return $row;
+        }
+        return false;
+    }
 
-      public function insertOne($body=[]) {
-        $cols = array_keys($body);
-        $sqlKeys = "(";
-        $prefix="";
-        foreach($cols as $key){
-            $sqlKeys.="$prefix$key";
-            $prefix=",";
+    public function insertOne($body = []){ //Version condensée
+        if(isset($body["Id_$this->table"])){
+            unset($body["Id_$this->table"]);
         }
-        $sqlKeys.=")";
-        $values = array_values($body);
-        $pointintero  = str_repeat('?,', count($body) - 1) . '?';
-        $sql="INSERT INTO $this->table $sqlKeys VALUE ($pointintero)  ";
-        $resp = $this->query($sql,$values);
-        $row = $resp->statement->fetchAll(PDO::FETCH_CLASS);
-        if($resp->result && $resp->statement->rowcount() == 1){
+        $columns = implode(",", array_keys($body));
+        $values = implode(",", array_map(function (){ return "?"; },$body));
+        $valuesToBind = array_values($body);
+        $sql = "INSERT INTO $this->table ($columns) VALUES ($values)";
+        $resp = $this->query($sql, $valuesToBind);
+        if($resp->result && $resp->statment->rowCount() == 1){
             $insertedId = self::$connection->lastInsertId();
             $row = $this->selectOne($insertedId);
             return $row;
