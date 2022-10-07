@@ -8,6 +8,9 @@ die ;
 require_once 'services/database.service.php';
 require_once 'controllers/database.controller.php';
 
+$_ENV["current"] = "dev";
+$config = file_get_contents("configs/".$_ENV["current"].".config.json"); 
+$_ENV['config']=json_decode($config);
 
 //recupertation des controllers et des controllers file path //
 $route = trim($_SERVER["REQUEST_URI"], '/');

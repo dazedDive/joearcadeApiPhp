@@ -1,5 +1,5 @@
 
-@body = {"with":["image"]}
+@body = {"login" : "joeparc@hotmail.com" , "password" : "JoshAdmin101"}
 
 GET http://joe.api/flipper/1
 ###
@@ -11,4 +11,7 @@ PUT http://joe.api/flipper/1
 POST http://joe.api/flipper/5
 
 {{body}}
+###
+POST http://joe.api/auth/login
 
+{{body}}
