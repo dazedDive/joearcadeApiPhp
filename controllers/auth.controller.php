@@ -54,7 +54,7 @@ class AuthController {
         $prefix = $_ENV['config']->hash->prefix;
         if(isset($row[0])&& password_verify($password,$prefix.$row[0]->password)){
            
-            return [ "result" => true, "role" => $row[0]->is_admin];
+            return [ "result" => true, "is_admin" => $row[0]->is_admin];
         }
         else {
             return [ "result" => false];
