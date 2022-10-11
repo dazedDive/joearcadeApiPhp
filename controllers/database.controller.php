@@ -23,9 +23,14 @@ abstract class DatabaseController {
        if ($_SERVER['REQUEST_METHOD'] == "POST"  && !isset($id)){
         $this->action = $this->create();
        }
-       if ($_SERVER['REQUEST_METHOD'] == "POST"  && isset($id)){
-        $this->action=$this->getOneWith($id,$this->body["with"]);
-       }
+       if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($id)){
+        if($id==0){
+          $this->action=$this->getAllWith($this->body["with"]);
+        }
+        if($id>0){
+          $this->action=$this->getOneWith($id,$this->body["with"]);
+        }
+      }
 
        if ($_SERVER['REQUEST_METHOD'] == "PUT" && isset($id)){
         $this->action = $this->uppdate($id);
@@ -79,6 +84,39 @@ abstract class DatabaseController {
         $this->affectDataToRow($row, $sub_rows);
         return $row;
     }
+
+    function getAllWith($with){
+      $rows = $this->getAll();
+      // $sub_rows = [];
+      foreach($with as $table){
+        if(is_array($table)){
+          $final_table = key($table);
+          $through_table = $table[$final_table];
+          $dbs = new DatabaseService($through_table);
+          $through_table_rows = $dbs->selectWhere();
+          $dbs = new DatabaseService($final_table);
+          $final_table_rows = $dbs->selectAll();
+          foreach($through_table_rows as $through_table_row){
+            $row_to_add = array_filter($final_table_rows,
+            function($item) use ($through_table_row, $final_table){
+              $prop = 'Id_'.$final_table;
+              return $item->{$prop} == $through_table_row->{$prop};
+            });
+            $through_table_row->$final_table = count($row_to_add) == 1 ? array_pop($row_to_add) : null;
+          }
+          $sub_rows[$final_table] = $through_table_rows;
+          continue;
+        }
+        $dbs = new DatabaseService($table);
+        $table_rows=$dbs->selectAll();
+        $sub_rows[$table] = $table_rows;
+      }
+      foreach($rows as $row){
+        $this->affectDataToRow($row, $sub_rows);
+      }
+      return $rows;
+  }
+
 
     public function create(){
         $dbs = new DatabaseService($this->table);
