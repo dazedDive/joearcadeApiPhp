@@ -7,6 +7,7 @@ die ;
 }
 require_once 'services/database.service.php';
 require_once 'controllers/database.controller.php';
+require_once 'vendor/autoload.php';
 
 $_ENV["current"] = "dev";
 $config = file_get_contents("configs/".$_ENV["current"].".config.json"); 

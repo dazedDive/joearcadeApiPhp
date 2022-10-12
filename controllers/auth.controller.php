@@ -1,4 +1,8 @@
 <?php 
+
+use \Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
+
 class AuthController {
    
     public function __construct($params)
@@ -54,7 +58,7 @@ class AuthController {
         $prefix = $_ENV['config']->hash->prefix;
         if(isset($row[0])&& password_verify($password,$prefix.$row[0]->password)){
            
-            return [ "result" => true, "is_admin" => $row[0]->is_admin];
+            return [ "result" => true, "is_admin" => $row[0]->is_admin, "id" =>$row[0]->Id_account];
         }
         else {
             return [ "result" => false];

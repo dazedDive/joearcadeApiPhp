@@ -1,0 +1,17 @@
+{
+    "name": "diouze/joearcade",
+    "description": "joeArcadeWebShop",
+    "autoload": {
+        "psr-4": {
+            "Diouze\\Joearcade\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "dazedDive"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.3"
+    }
+}
