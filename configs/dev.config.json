@@ -8,7 +8,10 @@
     },
     "hash":{
         "prefix" : "$argon2id$v=19$m=1024,t=2,p=2$"
+    },
+    "jwt":{
+        "secret" : "AQ88killP2D2of77"
     }
-    
+
     
 }

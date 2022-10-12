@@ -57,13 +57,28 @@ class AuthController {
         $row=$dbs->selectWhere("login = ? AND is_deleted = ?", [$login,0]);
         $prefix = $_ENV['config']->hash->prefix;
         if(isset($row[0])&& password_verify($password,$prefix.$row[0]->password)){
-           
-            return [ "result" => true, "is_admin" => $row[0]->is_admin, "id" =>$row[0]->Id_account];
+            $secretKey = $_ENV['config']->jwt->secret;
+            $issuedAt = time();
+            $expireAt = $issuedAt + 60*60*24;
+            $serverName = "joe.api";
+            $status = $row[0]->is_admin;
+            $userId = $row[0]->Id_account;
+            $requestData = [
+              'iat' => $issuedAt,
+              'iss' => $serverName,
+              'nbf' => $issuedAt,
+              'exp' => $expireAt,
+              'userRole' => $status,
+              'userId' => $userId
+            ];
+            $token = JWT::encode($requestData, $secretKey, 'HS512');
+            return [ "result" => true, "is_admin" => $row[0]->is_admin, "id" =>$row[0]->Id_account, "token"=>$token];
         }
         else {
             return [ "result" => false];
         }
     }
+
 
 
 }

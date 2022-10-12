@@ -1,5 +1,5 @@
 <?php
-class App_userController extends DatabaseController
+class CustomerController extends DatabaseController
 {
     public function affectDataToRow(&$row, $sub_rows){
     }
