@@ -110,7 +110,7 @@ class AuthController {
 
     public function register(){
       
-      $mail=$this->body['Mail'];
+      $mail=$this->body;
       $name=$this->body['Name'];
       $firstname=$this->body['Firstname'];
       $adress=$this->body['Adress'];
@@ -150,7 +150,7 @@ class AuthController {
             ];
             $token = JWT::encode($requestData, $secretKey, 'HS512');
             $href = "http://localhost:3000/account/validate/$token " ;
-            require_once('services/mailler.service.php');
+            require_once('services/mailer.service.php');
             $ms = new MailerService();
             $mailParams = [
               "fromAddress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],

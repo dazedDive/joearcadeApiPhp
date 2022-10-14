@@ -11,7 +11,16 @@
     },
     "jwt":{
         "secret" : "AQ88killP2D2of77"
+    },
+    "mailer" :{
+        "main":{
+            "host" : "smtp.gmail.com",
+            "port" : 587,
+            "auth" : true,
+            "secure" : "tls",
+            "user" : "dazeddive@gmail.com",
+            "pass" : "qdohocgeqlhxslgj"
+        }
     }
-
     
 }
