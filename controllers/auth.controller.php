@@ -18,10 +18,15 @@ class AuthController {
 
 
 
-    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method="login")){
-        $this->action = $this->loginV2();
-      }
-
+    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="login")){
+      $this->action = $this->loginV2();
+    }
+    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="register")){
+      $this->action = $this->register();
+    }
+    if ($_SERVER['REQUEST_METHOD'] == "GET" && ($method=="check")){
+      $this->action = $this->check();
+    }
     
     }
     // public function login(){
@@ -79,8 +84,87 @@ class AuthController {
         }
     }
 
+    public function check(){
+      $headers = apache_request_headers();
+      if (isset($headers["Authorization"])){
+        $token = $headers["Authorization"];
+      }
+      $secretKey = $_ENV['config']->jwt->secret;
+      if(isset($token)&&!empty($token)){
+        try{
+          $payload = JWT::decode($token, new Key($secretKey, 'HS512'));
+        }
+        catch(Exception $e){
+          $payload = null;
+        }
+        if (isset($payload) &&
+        $payload->iss ==="joe.api" &&
+        $payload->nbf < time() &&
+        $payload->exp > time()) 
+        {
+          return ["result" => true, "is_admin" => $payload->userRole, "id" =>$payload->userId];
+        }
+      }
+      return ["result" => false];
+    }
 
+    public function register(){
+      
+      $mail=$this->body['Mail'];
+      $name=$this->body['Name'];
+      $firstname=$this->body['Firstname'];
+      $adress=$this->body['Adress'];
+      $tel=$this->body['Tel'];
+      $cp=$this->body['cp'];
+      $city=$this->body['city'];
+      $dbs= new DatabaseService('account');
+      
+      $checkmail=$dbs->selectWhere("login = ? AND is_deleted = ?", [$mail,0]);
+      if(count($checkmail)==1){
+        return "Mail ".$mail. " deja utilisé, veuillez vous connecter";
+        die;}
 
+      $secretKey = $_ENV['config']->jwt->secret;
+            $issuedAt = time();
+            $expireAt = $issuedAt + 60*60*24;
+            $serverName = "blog.api";
+            $userMail = $mail;
+            $userName = $name;
+            $userFirstName = $firstname;
+            $userTel = $tel;
+            $userAdress = $adress;
+            $userCp = $cp;
+            $userCity = $city;
+            $requestData = [
+              'iat' => $issuedAt,
+              'iss' => $serverName,
+              'nbf' => $issuedAt,
+              'exp' => $expireAt,
+              'usermail' => $userMail,
+              'userName' => $userName,
+              'userFirstName' => $userFirstName,
+              'userTel' => $userTel,
+              'userAdress' => $userAdress,
+              'userCp' => $userCp,
+              'userCity' => $userCity
+            ];
+            $token = JWT::encode($requestData, $secretKey, 'HS512');
+            $href = "http://localhost:3000/account/validate/$token " ;
+            require_once('services/mailler.service.php');
+            $ms = new MailerService();
+            $mailParams = [
+              "fromAddress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
+              "destAdresses"=>[$mail],
+              "replyAdress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
+              "subject"=>"Confirmation de ma création de compte sur Joe Arcade !",
+              "body"=>"Salut ".$userFirstName.",afin de valider la création de votre compte, veuillez cliquer
+              sur le lien  : " . $href,
+              "altBody"=>"Joe Arcade ! La location de Flipper facile et fun ! "
+            ];
+            $ms->send($mailParams);
+            return "Un mail de confirmation a été envoyé à votre adresse mail, veuillez cliquer sur le lien
+            contenue dans celui ci pour finaliser la création de votre compte ;)";
+    }
 }
 
 ?>
