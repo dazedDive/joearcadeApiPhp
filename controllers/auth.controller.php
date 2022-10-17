@@ -110,12 +110,12 @@ class AuthController {
 
     public function register(){
       
-      $mail=$this->body;
-      $name=$this->body['Name'];
-      $firstname=$this->body['Firstname'];
-      $adress=$this->body['Adress'];
-      $tel=$this->body['Tel'];
-      $cp=$this->body['cp'];
+      $mail=$this->body['email'];
+      $name=$this->body['name'];
+      $firstname=$this->body['firstname'];
+      $adress=$this->body['adresse'];
+      $tel=$this->body['telephone'];
+      $cp=$this->body['codepostal'];
       $city=$this->body['city'];
       $dbs= new DatabaseService('account');
       
