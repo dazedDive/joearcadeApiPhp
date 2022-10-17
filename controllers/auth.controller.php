@@ -116,7 +116,7 @@ class AuthController {
       $adress=$this->body['adresse'];
       $tel=$this->body['telephone'];
       $cp=$this->body['codepostal'];
-      $city=$this->body['city'];
+      $city=$this->body['ville'];
       $dbs= new DatabaseService('account');
       
       $checkmail=$dbs->selectWhere("login = ? AND is_deleted = ?", [$mail,0]);
@@ -156,9 +156,9 @@ class AuthController {
               "fromAddress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
               "destAdresses"=>[$mail],
               "replyAdress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
-              "subject"=>"Confirmation de ma création de compte sur Joe Arcade !",
-              "body"=>"Salut ".$userFirstName.",afin de valider la création de votre compte, veuillez cliquer
-              sur le lien  : " . $href,
+              "subject"=>"Confirmation d'adresse Email",
+              "body"=>"Salut ".$userFirstName.",afin de valider votre compte, veuillez cliquer
+              sur ce <a href=$href>lien</a>",
               "altBody"=>"Joe Arcade ! La location de Flipper facile et fun ! "
             ];
             $ms->send($mailParams);
