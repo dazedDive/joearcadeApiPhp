@@ -27,6 +27,13 @@ class AuthController {
     if ($_SERVER['REQUEST_METHOD'] == "GET" && ($method=="check")){
       $this->action = $this->check();
     }
+    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="validate")){
+      $this->action = $this->validate();
+    }
+
+   if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="create")){
+      $this->action = $this->create();
+    }
     
     }
     // public function login(){
@@ -149,7 +156,7 @@ class AuthController {
               'userCity' => $userCity
             ];
             $token = JWT::encode($requestData, $secretKey, 'HS512');
-            $href = "http://localhost:3000/account/validate/$token " ;
+            $href = "http://localhost:3000/creation/password/$token " ;
             require_once('services/mailer.service.php');
             $ms = new MailerService();
             $mailParams = [
@@ -165,6 +172,79 @@ class AuthController {
             return "Un mail de confirmation a été envoyé à votre adresse mail, veuillez cliquer sur le lien
             contenue dans celui ci pour finaliser la création de votre compte ;)";
     }
+    public function validate(){
+      $token = $this->body['token'] ?? "";
+      if (isset($token)){
+        $secretKey = $_ENV['config']->jwt->secret;
+        
+        try{
+          $payload = JWT::decode($token, new Key($secretKey, 'HS512'));
+        }
+        catch(Exception $e){
+          $payload = null;
+        }
+        if (isset($payload) &&
+          $payload->iss === "blog.api" &&
+          $payload->nbf < time() &&
+          $payload->exp > time())
+
+          {
+            return ["result" => true,
+            "userFirstName" => $payload->userFirstName,
+            "mail" => $payload->usermail,
+            "login" => $payload->usermail,
+            "userName" =>$payload->userName,
+            "userAdress" =>$payload->userAdress,
+            "userCp" =>$payload->userCp,
+            "userCity" =>$payload->userCity,
+            "userTel" =>$payload->userTel];
+          }
+          else{
+            return ["result" => false];
+          }
+      }
+
+    }
+  public function create(){
+    
+    $login=$this->body['login'];
+    $mail=$this->body['mail'];
+    $name=$this->body['userName'];
+    $firstName=$this->body['userFirstName'];
+    $tel=$this->body['userTel'];
+    $adress=$this->body['userAdress'];
+    $cp=$this->body['userCp'];
+    $city=$this->body['userCity'];
+    $password = password_hash($this->body["password"], PASSWORD_ARGON2ID, [
+      'memory_cost' => 1024,
+      'time_cost' => 2,
+      'threads' => 2
+    ]);
+    $prefix = $_ENV['config']->hash->prefix;
+    $password = str_replace($prefix,"",$password);
+    $dbs = new DatabaseService('account');
+
+    $body = ['login'=>$login
+            ,'password'=>$password
+            ,'is_admin'=>0
+            ,'is_deleted'=>0];
+
+    $row=$dbs->insertOne($body);
+    if(isset($row)){
+      $dbs = new DatabaseService('customer');
+      $body = ['first_name'=>$firstName,
+              'last_name'=>$name,
+              'telephone'=>$tel,
+              'mail'=>$mail,
+              'adresse_facturation'=>$adress." ".$cp.":".$city,
+              'is_deleted'=>0,
+              'Id_account'=>$row->Id_account];
+      $dbs->insertOne($body);
+      return ["inscription"=>true];
+    }else{
+      return ["inscription"=>false];
+    }
+  }
 }
 
 ?>

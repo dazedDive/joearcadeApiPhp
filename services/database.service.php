@@ -71,7 +71,7 @@ class DatabaseService {
         array_push($valuesToBind,$id);
         $sql = "UPDATE $this->table SET $set WHERE $where";
         $resp = $this->query($sql, $valuesToBind);
-        if($resp->result && $resp->statment->rowCount() <= 1){
+        if($resp->result && $resp->statement->rowCount() <= 1){
             $row = $this->selectOne($id);
             return $row;
         }
@@ -87,7 +87,7 @@ class DatabaseService {
         $valuesToBind = array_values($body);
         $sql = "INSERT INTO $this->table ($columns) VALUES ($values)";
         $resp = $this->query($sql, $valuesToBind);
-        if($resp->result && $resp->statment->rowCount() == 1){
+        if($resp->result && $resp->statement->rowCount() == 1){
             $insertedId = self::$connection->lastInsertId();
             $row = $this->selectOne($insertedId);
             return $row;
