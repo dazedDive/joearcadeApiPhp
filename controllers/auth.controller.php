@@ -18,21 +18,24 @@ class AuthController {
 
 
 
-    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="login")){
+  if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="login")){
       $this->action = $this->loginV2();
     }
-    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="register")){
+  if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="register")){
       $this->action = $this->register();
     }
-    if ($_SERVER['REQUEST_METHOD'] == "GET" && ($method=="check")){
+  if ($_SERVER['REQUEST_METHOD'] == "GET" && ($method=="check")){
       $this->action = $this->check();
     }
-    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="validate")){
+  if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="validate")){
       $this->action = $this->validate();
     }
 
-   if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="create")){
+  if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="create")){
       $this->action = $this->create();
+    }
+  if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="reset")){
+      $this->action = $this->reset();
     }
     
     }
@@ -134,7 +137,7 @@ class AuthController {
       $secretKey = $_ENV['config']->jwt->secret;
             $issuedAt = time();
             $expireAt = $issuedAt + 60*60*24;
-            $serverName = "blog.api";
+            $serverName = "joe.api";
             $userMail = $mail;
             $userName = $name;
             $userFirstName = $firstname;
@@ -244,6 +247,43 @@ class AuthController {
     }else{
       return ["inscription"=>false];
     }
+  }
+
+  public function reset(){
+    $login=$this->body;
+    $dbs = new DatabaseService('account');
+    $checkmail=$dbs->selectWhere("login = ? AND is_deleted = ?", [$login,0]);
+      if(count($checkmail)==0){
+        return "l'adresse : ".$login. " n'existe pas...";
+        die;}
+    $secretKey = $_ENV['config']->jwt->secret;
+    $issuedAt = time();
+    $expireAt = $issuedAt + 60*60*24;
+    $serverName = "joe.api";  
+    $userMail = $login;
+    $requestData = [
+      'iat' => $issuedAt,
+      'iss' => $serverName,
+      'nbf' => $issuedAt,
+      'exp' => $expireAt,
+      'usermail' => $userMail];
+    $token = JWT::encode($requestData, $secretKey, 'HS512');
+    $href = "http://localhost:3000/reset/password/$token " ;
+    require_once('services/mailer.service.php');
+    $ms = new MailerService();
+    $mailParams = [
+      "fromAddress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
+      "destAdresses"=>[$login],
+      "replyAdress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
+      "subject"=>"Création d'un nouveau mot de passe",
+      "body"=>"Salut ,afin de modifier votre mot de passe, veuillez cliquer
+      sur ce <a href=$href>lien</a>",
+      "altBody"=>"Joe Arcade ! La location de Flipper facile et fun ! "
+    ];
+    $ms->send($mailParams);
+    return "Un lien a été envoyé à votre adresse mail, veuillez cliquer 
+    celui ci pour modifier votre mot de passe ;)";   
+
   }
 }
 
