@@ -30,13 +30,19 @@ class AuthController {
   if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="validate")){
       $this->action = $this->validate();
     }
+  if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="validatePass")){
+      $this->action = $this->validatePass();
+    }
 
   if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="create")){
       $this->action = $this->create();
     }
   if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="reset")){
       $this->action = $this->reset();
-    }
+  }
+  if ($_SERVER['REQUEST_METHOD'] == "POST" && ($method=="uppdatePass")){
+    $this->action = $this->uppdatePass();
+  }
     
     }
     // public function login(){
@@ -187,7 +193,7 @@ class AuthController {
           $payload = null;
         }
         if (isset($payload) &&
-          $payload->iss === "blog.api" &&
+          $payload->iss === "joe.api" &&
           $payload->nbf < time() &&
           $payload->exp > time())
 
@@ -285,6 +291,62 @@ class AuthController {
     celui ci pour modifier votre mot de passe ;)";   
 
   }
+
+  
+  public function validatePass(){
+    $token = $this->body['token'] ?? "";
+    if (isset($token)){
+      $secretKey = $_ENV['config']->jwt->secret;
+      
+      try{
+        $payload = JWT::decode($token, new Key($secretKey, 'HS512'));
+      }
+      catch(Exception $e){
+        $payload = null;
+      }
+      if (isset($payload) &&
+        $payload->iss === "joe.api" &&
+        $payload->nbf < time() &&
+        $payload->exp > time())
+
+        {
+          return ["result" => true,
+          "login" => $payload->usermail];
+        }
+        else{
+          return ["result" => false];
+        }
+    }
+
+  }
+
+  public function uppdatePass(){
+    $login=$this->body['login'];
+    $password = password_hash($this->body["password"], PASSWORD_ARGON2ID, [
+      'memory_cost' => 1024,
+      'time_cost' => 2,
+      'threads' => 2
+    ]);
+    $prefix = $_ENV['config']->hash->prefix;
+    $password = str_replace($prefix,"",$password);
+    $dbs=new DatabaseService('account');
+    $findId=$dbs->selectWhere("login = ? AND is_deleted = ?", [$login,0]);
+    $id=$findId[0]->Id_account;
+    $body = ['Id_account'=>$id
+            ,'login'=>$login
+            ,'password'=>$password
+            ,'is_admin'=>0
+            ,'is_deleted'=>0];
+    $dbs=new DatabaseService('account');
+    $row=$dbs->updateOne($body);
+    if (isset($row)){
+      return ["result"=>true];
+      }else{
+        ["result"=>false];
+      }
+    }
+  
+
 }
 
 ?>

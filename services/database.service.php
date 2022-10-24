@@ -60,7 +60,7 @@ class DatabaseService {
         return $row;
     }
 
-    function updateOne($body){ //Version condensée
+    function updateOne($body){ 
         $id = $body["Id_$this->table"];
         $where = "Id_$this->table = ?";
         if(isset($body["Id_$this->table"])){
