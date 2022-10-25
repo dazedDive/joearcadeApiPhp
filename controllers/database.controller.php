@@ -11,6 +11,7 @@ abstract class DatabaseController {
         
         $request_body = file_get_contents('php://input');
         $this->body = $request_body ? json_decode($request_body, true) : null;
+       ////////////////CONSTUCTEUR DE LA TABLE VIA LE CONTROLLER NAME/////////// 
        $this->table = lcfirst(str_replace("Controller", "", get_called_class()));
         
        if ($_SERVER['REQUEST_METHOD'] == "GET" && !isset($id)){
