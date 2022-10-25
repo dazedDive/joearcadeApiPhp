@@ -1,5 +1,5 @@
 <?php
-class DispoController extends DatabaseController
+class MaintenanceController extends DatabaseController
 {
     public function affectDataToRow(&$row, $sub_rows){
     }
