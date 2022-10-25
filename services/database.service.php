@@ -6,6 +6,8 @@ class DatabaseService {
             $this->table=$table;
         }
     static private $connection=null;
+
+    
     private function connect(){
         if(self::$connection==null){
             $host="localhost";
@@ -78,7 +80,7 @@ class DatabaseService {
         return false;
     }
 
-    public function insertOne($body = []){ //Version condensée
+    public function insertOne($body = []){ 
         if(isset($body["Id_$this->table"])){
             unset($body["Id_$this->table"]);
         }
