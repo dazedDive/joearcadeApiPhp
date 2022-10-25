@@ -10,9 +10,10 @@ class DatabaseService {
     
     private function connect(){
         if(self::$connection==null){
-            $host="localhost";
-            $port="3306";
-            $dbName="joe";
+            $db_config= $_ENV['config']->db;
+            $host=$db_config->host;
+            $port=$db_config->port;
+            $dbName=$db_config->dbName;
             $dsn="mysql:host=$host;port=$port;dbname=$dbName";
             $user="root";
             $pass="";
