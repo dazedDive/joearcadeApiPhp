@@ -21,6 +21,12 @@
             "user" : "dazeddive@gmail.com",
             "pass" : "qdohocgeqlhxslgj"
         }
+    },
+    "restricted":{
+        "GET/account":"$isAdmin==0;",
+        "GET/customer" :"$isAdmin==0;",
+        "GET/booking":"$isAdmin==0;"
+        
     }
     
 }

@@ -20,11 +20,20 @@ $_ENV["current"] = "dev";
 $config = file_get_contents("configs/".$_ENV["current"].".config.json"); 
 $_ENV['config']=json_decode($config);
 
-//////////////////////DECOUPAGE URI APPEL CONTROLLER///////////////////////
+//////////////////////DECOUPAGE URI APPEL ROULE///////////////////////
 $route = trim($_SERVER["REQUEST_URI"], '/');
 $route = filter_var($route,FILTER_SANITIZE_URL);
 $route = explode ( '/' , $route );
 $controllerName = array_shift($route);
+
+//////////////////PROTECTION DE LAPI AVEC LE MIDDLEWARE/////////////////
+require_once 'middlewares/auth.middleware.php';
+$req = $_SERVER['REQUEST_METHOD'] . "/" . trim($_SERVER["REQUEST_URI"], '/');
+$am = new AuthMiddleware($req);
+$am->verify();
+
+//////////////////APEL DES CONTROLLERS////////////////////////////
+
 $controllerClassName = ucfirst($controllerName."Controller");
 $controllerFilePath = "controllers/".$controllerName.".controller.php";
 if(!file_exists($controllerFilePath)){
