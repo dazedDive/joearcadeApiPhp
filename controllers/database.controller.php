@@ -1,4 +1,5 @@
 <?php
+////////////CLASSE MERE POUR TOUT NOS CONTROLLERS//////////////
 abstract class DatabaseController {
     public function __construct($props)
     {
@@ -133,12 +134,16 @@ abstract class DatabaseController {
          $row = $dbs->updateOne($this->body);
         return $row;
     }
+    
     public function softDelete($id){
-        return "ca marche";
+      $dbs = new DatabaseService($this->table);
+      $row = $dbs->updateOne(["Id_$this->table"=>$id,"Is_deleted"=>1]);
+      if(isset($row) && $row == false){
+        return false;
+      }
+      return !(isset($row));
     }
 
-    public function delete($id){
-        return "ca marche";
-    }
+    
 }
 ?>

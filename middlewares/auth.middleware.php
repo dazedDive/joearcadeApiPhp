@@ -23,8 +23,9 @@ class AuthMiddleware{
 
     public function verify(){
         if (isset($this->condition)){
-            if(isset($headers['Authorization'])){
-                $token=$headers['Authorization'];
+            $headers = apache_request_headers();
+            if(isset($headers["Authorization"])){
+                $token=$headers["Authorization"];
             }
             $secretKey = $_ENV['config']->jwt->secret;
             if(isset($token) && !empty($token)){
@@ -37,7 +38,7 @@ class AuthMiddleware{
                 $payload->iss ==="joe.api" && 
                 $payload->nbf < time() && 
                 $payload->exp > time()){
-                    $userRole = $payload->userRole;
+                    $status = $payload->userRole;
                     $userId = $payload->userId;
                     $id=$this->id;
                     $test=false;

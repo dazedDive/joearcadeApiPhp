@@ -22,10 +22,18 @@
             "pass" : "qdohocgeqlhxslgj"
         }
     },
+    
     "restricted":{
-        "GET/account":"$isAdmin==0;",
-        "GET/customer" :"$isAdmin==0;",
-        "GET/booking":"$isAdmin==0;"
+        "GET/account":"$status==1;",
+        "GET/customer" :"$status==1;",
+        "GET/booking":"$status==1;",
+        "POST/booking":"$status==1;",
+        "POST/flipper/":"$status==1;",
+        "POST/image":"$status==1;",
+        "PUT/booking/:id":"$status==1;",
+        "PUT/flipper/:id":"$status==1;",
+        "PUT/statistique/2":"$status==1;",
+        "PUT/image/:id":"$status==1;"
         
     }
     

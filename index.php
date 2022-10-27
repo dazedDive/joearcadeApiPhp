@@ -1,21 +1,22 @@
 <?php
 /////////////////////////HEADER D'AUTORISATION////////////////////////
 header ( "Access-Control-Allow-Origin: http://localhost:3000" );
-header ( "Access-Control-Allow-Methods: *" );
+////////////////AUTORISATION DE PARTAGE DE COOKIE////////////////
 header ( 'Access-Control-Allow-Headers: Authorization' );
 header ( "Access-Control-Allow-Credentials: true" );
-
+///////////////AUTHORIZATION POUR LES POST ET PUT////////////////
+header ( "Access-Control-Allow-Methods: *" );
 if ( $_SERVER [ 'REQUEST_METHOD' ] == "OPTIONS" ){
-header ( 'HTTP/1.0 200 OK' );
-die ;
-}
+    header ( 'HTTP/1.0 200 OK' );
+    die ;
+    }
 ///////////////////////////////////////////////////////////////////////
 //////////////////////////IMPORTATION FICHIERS/////////////////////////
 require_once 'services/database.service.php';
 require_once 'controllers/database.controller.php';
 require_once 'vendor/autoload.php';
 ///////////////////////////////////////////////////////////////////////
-///////////////////////ATTRIBUTION DE LA CONFIG////////////////////////
+///////////////////////ATTRIBUTION DE LA CONFIG par defaut en DEV////////////
 $_ENV["current"] = "dev";
 $config = file_get_contents("configs/".$_ENV["current"].".config.json"); 
 $_ENV['config']=json_decode($config);
