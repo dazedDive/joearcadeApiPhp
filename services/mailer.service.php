@@ -8,6 +8,7 @@ class MailerService {
         $config=$_ENV['config']->mailer->{$profil};
         $mailer = new PHPMailer(true);
         $mailer->isSMTP();
+        $mailer->CharSet = 'UTF-8';
         $mailer->Host = $config->host;
         $mailer->Port= $config->port;
         $mailer->SMTPAuth= $config->auth;
@@ -27,6 +28,7 @@ class MailerService {
         $subject = $params["subject"] ?? "Sujet";
         $body = $params["body"] ?? "Message";
         $altBody = $params["altBody"] ?? "Message non HTML";
+        $attachement = $params["attachement"] ?? null;
         try{
             $this->mailer->setFrom($fromAddress[0],$fromAddress[1]);
             foreach($destAdresses as $destAdresse){
@@ -37,6 +39,7 @@ class MailerService {
             $this->mailer->Subject = $subject;
             $this->mailer->Body = $body;
             $this->mailer->AltBody = $altBody;
+            $this->mailer->addAttachment($attachement);
             $result = $this->mailer->send();
             if($result){
                 return ["result" => true];

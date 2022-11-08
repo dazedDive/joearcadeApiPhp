@@ -1,5 +1,5 @@
 <?php
-class ReservervationController extends DatabaseController
+class BookingController extends DatabaseController
 {
     public function affectDataToRow(&$row, $sub_rows){
     }
