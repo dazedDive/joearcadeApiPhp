@@ -37,6 +37,21 @@ class BookerController {
             $mail=$this->body['customerMail'];
             $factureAdress=$this->body['adressFacture'];
             $destAdresse = $this->body['adressFacture'];
+            $flipperName = $this->body['flipperName'];
+            $weekEnd=$this->body['weekend'];
+            $month = $this->body['month'];
+            $year = $this->body['year'];
+            $weekEnd=$this->body['weekend'];
+            $month = $this->body['month'];
+            $year = $this->body['year'];
+            $deliveryAddress=$this->body['adressDelivery'];
+            $cpAdresse = $this->body['cpDelivery'];
+            $cityAdresse = $this->body['cityDelivery'];
+            $flipperPrice = $this->body['flipperPrice'];
+            $deliveryPrice = $this->body['deliveryPrice'];
+            $timeOfRent = $this->body['timeOfRent'];
+            $total = $this->body['total'];
+            $tva = 20;
 
             require_once('services/pdf.service.php');
             $pdf= new Pdf();
@@ -50,6 +65,19 @@ class BookerController {
             "Adresse de facturation : ".$factureAdress."\n"            
             ,2,"C");
             $pdf->Ln(15);
+            $pdf->MultiCell(0,10,
+            'votre commande : flipper : '.$flipperName."\n"
+            ."pour la date du ".$weekEnd."/".$month."/".$year."\n".
+            "Adresse de livraison : ".$deliveryAddress.",".$cpAdresse." ".$cityAdresse             
+            ,2,"C");
+            $pdf->Ln(15);
+            $pdf->MultiCell(0,12,
+            'Prix de la location : '.$flipperPrice."€/TTC\n"
+            ."Durée de Location".$timeOfRent."\n".
+            "Prix de la livraison".$deliveryPrice."€/TTC\n".
+            "Total : ".$total."€/TTC"             
+            ,2,"C");
+            $pdf->Footer();
             $pdf->Output('F','invoice/commande_numero'.$Id_booking.'.pdf',true);
             require_once('services/mailer.service.php');
             $ms = new MailerService();
@@ -57,8 +85,8 @@ class BookerController {
               "fromAddress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
               "destAdresses"=>[$destAdresse],
               "replyAdress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
-              "subject"=>"Merci pour votre commande",
-              "body"=>"Votre commande à bien été enregistré",
+              "subject"=>"Merci pour votre commande !",
+              "body"=>"Votre commande à bien été enregistré, vous trouverez votre facture PDF en pièce jointe.",
               "altBody"=>"Joe Arcade ! La location de Flipper facile et fun ! ",
               "attachement"=>'invoice/commande_numero'.$Id_booking.'.pdf'
             ];
