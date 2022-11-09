@@ -53,37 +53,45 @@ class BookerController {
             $total = $this->body['total'];
             $tva = 20;
 
+            ////////////////////CREATION DE LA FACTURE PDF/////////////////
             require_once('services/pdf.service.php');
             $pdf= new Pdf();
+            define('EURO', chr(128));
             $pdf->AddPage();
-            $pdf->SetFont('Arial','B',10);
-            $pdf->Header();
+            $pdf->SetFont('Arial','B',9);
+            
             $pdf->Ln(30);
+            $pdf->Line(10,40,200,40);
             $pdf->MultiCell(0,10,
-            'commande numero : '.$Id_booking."\n".$firstName." ".$lastName."\n"
-            ."telephone : ".$tel." email : ".$mail."\n".
+            ' facture pour la commande numero : 000'.$Id_booking."\n".
+            "Client : ".$firstName." ".$lastName."\n"
+            .utf8_decode("téléphone : ").$tel." email : ".$mail."\n".
             "Adresse de facturation : ".$factureAdress."\n"            
             ,2,"C");
-            $pdf->Ln(15);
+            $pdf->Ln(10);
+            $pdf->Line(10,80,200,80);
             $pdf->MultiCell(0,10,
-            'votre commande : flipper : '.$flipperName."\n"
+            "VOTRE COMMANDE :"."\n".utf8_decode("modèle de flipper : ").$flipperName."\n"
             ."pour la date du ".$weekEnd."/".$month."/".$year."\n".
-            "Adresse de livraison : ".$deliveryAddress.",".$cpAdresse." ".$cityAdresse             
+            "Adresse de livraison : ".utf8_decode($deliveryAddress).",".$cpAdresse." ".$cityAdresse             
             ,2,"C");
-            $pdf->Ln(15);
+            $pdf->Ln(10);
+            $pdf->Line(10,140,200,140);
             $pdf->MultiCell(0,12,
-            'Prix de la location : '.$flipperPrice."€/TTC\n"
-            ."Durée de Location".$timeOfRent."\n".
-            "Prix de la livraison".$deliveryPrice."€/TTC\n".
-            "Total : ".$total."€/TTC"             
+            'Prix de la location : '.$flipperPrice." EUROS / TTC\n"
+            .utf8_decode("Durée de Location : ").utf8_decode($timeOfRent)."\n".
+            "Prix de la livraison : ".$deliveryPrice." EUROS / TTC\n".
+            "Total : ".$total." EUROS / TTC"             
             ,2,"C");
-            $pdf->Footer();
+            
             $pdf->Output('F','invoice/commande_numero'.$Id_booking.'.pdf',true);
+///////////////////////////////////////////////////////////////////////////////////////////
+
             require_once('services/mailer.service.php');
             $ms = new MailerService();
             $mailParams = [
               "fromAddress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
-              "destAdresses"=>[$destAdresse],
+              "destAdresses"=>[$mail],
               "replyAdress"=>["monCompte@joe-arcade.fr", "monCompte joe-arcade.fr"],
               "subject"=>"Merci pour votre commande !",
               "body"=>"Votre commande à bien été enregistré, vous trouverez votre facture PDF en pièce jointe.",

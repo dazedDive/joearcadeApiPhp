@@ -12,7 +12,7 @@ class Pdf extends FPDF
     
     $this->SetY(-25);
     $this->SetFont('Arial','I',8);
-    $this->Cell(0,10,'Joe Arcade N°Siret : 123 568 941 00056 / www.joearcade.fr / contact@joearcade.fr',0,0,'C');
+    $this->Cell(0,10,utf8_decode("Joe Arcade N° Siret : 123 568 941 00056 / www.joearcade.fr / contact@joearcade.fr tel:06 12 22 33 44"),0,0,'C');
 }
     
 }
