@@ -27,32 +27,65 @@ class BookerController {
     }
 
     function complete(){
+      ////////////////////recupération du body de la requete et destructurisation///////////
             $headers = apache_request_headers();
             if(isset($headers["Authorization"])){
             $token=$headers["Authorization"];}
-            $Id_booking=$this->body['IdBooking'];
+            else{
+              return "Problème de reservation...Veuillez vous reconnecter..";
+              die;
+            }
+            $Id_booking=$this->body['Id_booking'];
+            $Id_flipper=$this->body['Id_flipper'];
+            $Id_customer=$this->body['Id_customer'];
             $firstName=$this->body['customerFirstName'];
             $lastName=$this->body['customerLastName'];
             $tel=$this->body['customerTel'];
             $mail=$this->body['customerMail'];
             $factureAdress=$this->body['adressFacture'];
-            $destAdresse = $this->body['adressFacture'];
             $flipperName = $this->body['flipperName'];
             $weekEnd=$this->body['weekend'];
-            $month = $this->body['month'];
-            $year = $this->body['year'];
-            $weekEnd=$this->body['weekend'];
-            $month = $this->body['month'];
-            $year = $this->body['year'];
-            $deliveryAddress=$this->body['adressDelivery'];
-            $cpAdresse = $this->body['cpDelivery'];
-            $cityAdresse = $this->body['cityDelivery'];
-            $flipperPrice = $this->body['flipperPrice'];
-            $deliveryPrice = $this->body['deliveryPrice'];
-            $timeOfRent = $this->body['timeOfRent'];
-            $total = $this->body['total'];
+            $month = $this->body['month_location'];
+            $year = $this->body['year_location'];
+            $weekEnd=$this->body['weekend_location'];
+            $deliveryAddress=$this->body['adress_delivery'];
+            $cpAdresse = $this->body['cp_delivery'];
+            $cityAdresse = $this->body['city_delivery'];
+            $flipperPrice = $this->body['flipper_price'];
+            $deliveryPrice = $this->body['transport_price'];
+            $timeOfRent = $this->body['time_of_rent'];
+            $total = $this->body['total_price'];
             $tva = 20;
+            
+            
+            
+            ////////////////////////////////inscription de la commande en db/////////////////////
+            $dbs= new DatabaseService('booking');
+            $findBook=$dbs->selectWhere("Id_booking = ? AND is_deleted = ? AND is_reserved= ?", [(int)$Id_booking,0,0]);
+            if(!isset($findBook)){
+              return "Un problème à eu lieu lors de votre reservation, Veuillez réésayer..";
+              die;
+            }
+            $body=['Id_booking'=>$Id_booking,
+                  'Id_flipper'=>$Id_flipper,
+                  'Id_customer'=>$Id_customer,
+                  'time_of_rent'=>$timeOfRent,
+                  'flipper_price'=>$flipperPrice,
+                  'transport_price'=>$deliveryPrice,
+                  'total_price'=>$total,
+                  'adresse_delivery'=>$deliveryAddress,
+                  'cp_delivery'=>$cpAdresse,
+                  'city_of_delivery'=>$cityAdresse,
+                  'is_reserved'=>1,
+                  'is_payed'=>1
+          ];
+            $writeBook = $dbs->updateOne($body);
+            if(!isset($writeBook)){
+              return "Un problème a été rencontré lors de votre reservation, veuillez réesayer";
+              die;
+            }
 
+            
             ////////////////////CREATION DE LA FACTURE PDF/////////////////
             require_once('services/pdf.service.php');
             $pdf= new Pdf();
@@ -81,7 +114,7 @@ class BookerController {
             'Prix de la location : '.$flipperPrice." EUROS / TTC\n"
             .utf8_decode("Durée de Location : ").utf8_decode($timeOfRent)."\n".
             "Prix de la livraison : ".$deliveryPrice." EUROS / TTC\n".
-            "Total : ".$total." EUROS / TTC"             
+            "Total : ".$total." EUROS / TTC, tva a : " .$tva."%"            
             ,2,"C");
             
             $pdf->Output('F','invoice/commande_numero'.$Id_booking.'.pdf',true);
