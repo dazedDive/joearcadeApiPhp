@@ -38,7 +38,7 @@ abstract class DatabaseController {
         $this->action = $this->uppdate($id);
        }
 
-       if ($_SERVER=['REQUEST_METHOD'] == "PATCH" && isset($id)){
+       if ($_SERVER['REQUEST_METHOD'] == "PATCH" && isset($id)){
         $this->action = $this->softDelete($id);
        }
      
@@ -92,7 +92,7 @@ abstract class DatabaseController {
       $rows = $this->getAll();
       // $sub_rows = [];
       foreach($with as $table){
-        if(is_array($table)){
+         if(is_array($table)){
           $final_table = key($table);
           $through_table = $table[$final_table];
           $dbs = new DatabaseService($through_table);

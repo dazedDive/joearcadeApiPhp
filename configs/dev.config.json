@@ -24,14 +24,22 @@
     },
     
     "restricted":{
+        
         "GET/account":"$status==1;",
         "POST/account/:id":"$userId==$id;",
         "POST/booker/:id":"$userId==$id;",
         "GET/customer" :"$status==1;",
         
         "POST/booking":"$status==1;",
-        "POST/flipper/":"$status==1;",
+        "POST/flipper":"$status==1;",
         "POST/image":"$status==1;",
+
+        "PATCH/booking":"$status==1;",
+        "PATCH/flipper/":"$status==1;",
+        "PATCH/account":"$status==1;",
+        "PATCH/customer":"$status==1;",
+        "PATCH/image":"$status==1;",
+
         "PUT/booking/:id":"$status==1;",
         "PUT/flipper/:id":"$status==1;",
         "PUT/statistique/2":"$status==1;",

@@ -132,5 +132,7 @@ class BookerController {
               "attachement"=>'invoice/commande_numero'.$Id_booking.'.pdf'
             ];
             $ms->send($mailParams);
+            return ["result"=>true,"message"=>"Jackpot !Merci votre commande à bien été enregistré, votre facture
+            a était envoyé sur votre boite mail."];
             }
 }
