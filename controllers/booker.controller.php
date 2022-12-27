@@ -1,22 +1,21 @@
 <?php
 require_once 'fpdf/fpdf.php';
-
-
 require_once 'vendor/autoload.php';
 
 class BookerController {
     public function __construct($params)
   {
     $id = array_shift($params);
-    $this->action=null;
+    $this->action = null;
    
     $request_body = file_get_contents('php://input');
     $this->body = $request_body ? json_decode($request_body, true) : null;
     $this->table = lcfirst(str_replace("Controller","",get_called_class()));
     
-    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($id=="pay")){
+    if ($_SERVER['REQUEST_METHOD'] == "POST" && ($id == "pay")){
         $this->action = $this->pay();
       }
+
     if ($_SERVER['REQUEST_METHOD'] == "POST" && (isset ($id))){
         $this->action = $this->complete();
     }
@@ -29,12 +28,14 @@ class BookerController {
     function complete(){
       ////////////////////recupération du body de la requete et destructurisation///////////
             $headers = apache_request_headers();
+
             if(isset($headers["Authorization"])){
-            $token=$headers["Authorization"];}
+            $token = $headers["Authorization"];}
             else{
               return "Problème de reservation...Veuillez vous reconnecter..";
               die;
             }
+
             $Id_booking=$this->body['Id_booking'];
             $Id_flipper=$this->body['Id_flipper'];
             $Id_customer=$this->body['Id_customer'];
@@ -56,43 +57,40 @@ class BookerController {
             $timeOfRent = $this->body['time_of_rent'];
             $total = $this->body['total_price'];
             $tva = 20;
-            
-            
-            
             ////////////////////////////////inscription de la commande en db/////////////////////
-            $dbs= new DatabaseService('booking');
-            $findBook=$dbs->selectWhere("Id_booking = ? AND is_deleted = ? AND is_reserved= ?", [(int)$Id_booking,0,0]);
+            $dbs = new DatabaseService('booking');
+            $findBook = $dbs->selectWhere("Id_booking = ? AND is_deleted = ? AND is_reserved= ?", [(int)$Id_booking,0,0]);
+
             if(!isset($findBook)){
               return "Un problème à eu lieu lors de votre reservation, Veuillez réésayer..";
               die;
             }
-            $body=['Id_booking'=>$Id_booking,
-                  'Id_flipper'=>$Id_flipper,
-                  'Id_customer'=>$Id_customer,
-                  'time_of_rent'=>$timeOfRent,
-                  'flipper_price'=>$flipperPrice,
-                  'transport_price'=>$deliveryPrice,
-                  'total_price'=>$total,
-                  'adresse_delivery'=>$deliveryAddress,
-                  'cp_delivery'=>$cpAdresse,
-                  'city_of_delivery'=>$cityAdresse,
-                  'is_reserved'=>1,
-                  'is_payed'=>1
-          ];
+
+            $body = ['Id_booking'=>$Id_booking,
+                    'Id_flipper'=>$Id_flipper,
+                    'Id_customer'=>$Id_customer,
+                    'time_of_rent'=>$timeOfRent,
+                    'flipper_price'=>$flipperPrice,
+                    'transport_price'=>$deliveryPrice,
+                    'total_price'=>$total,
+                    'adresse_delivery'=>$deliveryAddress,
+                    'cp_delivery'=>$cpAdresse,
+                    'city_of_delivery'=>$cityAdresse,
+                    'is_reserved'=>1,
+                    'is_payed'=>1
+                  ];
             $writeBook = $dbs->updateOne($body);
+
             if(!isset($writeBook)){
               return "Un problème a été rencontré lors de votre reservation, veuillez réesayer";
               die;
             }
-
-            
-            ////////////////////CREATION DE LA FACTURE PDF/////////////////
+          ////////////////////CREATION DE LA FACTURE PDF/////////////////
             require_once('services/pdf.service.php');
-            $pdf= new Pdf();
+            $pdf = new Pdf();
             define('EURO', chr(128));
             $pdf->AddPage();
             $pdf->SetFont('Arial','B',9);
-            
             $pdf->Ln(30);
             $pdf->Line(10,40,200,40);
             $pdf->MultiCell(0,10,
@@ -116,10 +114,8 @@ class BookerController {
             "Prix de la livraison : ".$deliveryPrice." EUROS / TTC\n".
             "Total : ".$total." EUROS / TTC, tva a : " .$tva."%"            
             ,2,"C");
-            
             $pdf->Output('F','invoice/commande_numero'.$Id_booking.'.pdf',true);
 ///////////////////////////////////////////////////////////////////////////////////////////
-
             require_once('services/mailer.service.php');
             $ms = new MailerService();
             $mailParams = [

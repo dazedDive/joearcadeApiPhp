@@ -16,7 +16,7 @@ class BookingController extends DatabaseController
                 return $item->Id_flipper === $row->Id_flipper;
             });
             
-            $row->flipper = count($flippers) ==1 ? array_shift($flippers) : null;
+            $row->flipper = count($flippers) == 1 ? array_shift($flippers) : null;
         }
     }
     
