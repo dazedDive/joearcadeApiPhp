@@ -32,7 +32,7 @@ class BookerController {
             if(isset($headers["Authorization"])){
             $token = $headers["Authorization"];}
             else{
-              return "Problème de reservation...Veuillez vous reconnecter..";
+              return ["result"=>false,"message"=>"erreur lors de votre reservation..Veuillez réessayer"];
               die;
             }
 
@@ -45,7 +45,7 @@ class BookerController {
             $mail=$this->body['customerMail'];
             $factureAdress=$this->body['adressFacture'];
             $flipperName = $this->body['flipperName'];
-            $weekEnd=$this->body['weekend'];
+            $weekEnd=$this->body['weekend_location'];
             $month = $this->body['month_location'];
             $year = $this->body['year_location'];
             $weekEnd=$this->body['weekend_location'];
@@ -61,8 +61,8 @@ class BookerController {
             $dbs = new DatabaseService('booking');
             $findBook = $dbs->selectWhere("Id_booking = ? AND is_deleted = ? AND is_reserved= ?", [(int)$Id_booking,0,0]);
 
-            if(!isset($findBook)){
-              return "Un problème à eu lieu lors de votre reservation, Veuillez réésayer..";
+            if(count($findBook) == 0){
+              return ["result"=>false,"message"=>"erreur lors de votre reservation..Veuillez réessayer"];
               die;
             }
 
@@ -82,7 +82,7 @@ class BookerController {
             $writeBook = $dbs->updateOne($body);
 
             if(!isset($writeBook)){
-              return "Un problème a été rencontré lors de votre reservation, veuillez réesayer";
+              return ["result"=>false,"message"=>"erreur lors de votre reservation..Veuillez réessayer"];
               die;
             }
           ////////////////////CREATION DE LA FACTURE PDF/////////////////

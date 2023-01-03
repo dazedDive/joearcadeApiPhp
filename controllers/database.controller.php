@@ -4,8 +4,8 @@ abstract class DatabaseController {
 
     public function __construct($props)
     {
-       $id=array_shift($props);
-       $this->action=null;
+       $id = array_shift($props);
+       $this->action = null;
 
     if (isset ($id) && !ctype_digit($id)){
         return $this;
@@ -62,8 +62,9 @@ abstract class DatabaseController {
     }
     
     function getOneWith($id,$with){
-        $row=$this->getOne($id);
+        $row = $this->getOne($id);
         foreach($with as $table){
+
           if(is_array($table)){
             $final_table = key($table);
             $through_table = $table[$final_table];
@@ -77,6 +78,7 @@ abstract class DatabaseController {
                 $prop = 'Id_'.$final_table;
                 return $item->{$prop} == $through_table_row->{$prop};
               });
+
               if(count($row_to_add)==1){
                 $through_table_row->$final_table = array_pop($row_to_add);
               }
@@ -84,10 +86,12 @@ abstract class DatabaseController {
             $sub_rows[$final_table] = $through_table_rows;
             continue;
           }
+
           $dbs = new DatabaseService($table);
           $table_rows=$dbs->selectAll();
           $sub_rows[$table] = $table_rows;
         }
+        
         $this->affectDataToRow($row, $sub_rows);
         return $row;
     }
